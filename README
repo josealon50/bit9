@@ -1,0 +1,20 @@
+README
+  The following zip should have everything necessary to deploy a simple PHP
+application that communicates with themovie db API. I have used Docker to spin 
+a 7.4 PHP apache container that will serve and execute the PHP scripts. It also 
+spins up a mysql database that at the moment of initializations executes an
+init.sql script that creates a simple table that holds browser analytics data. 
+
+  The folder includes:
+    - Dockerfile
+    - docker-compose.yml
+    - php 
+      - Database.php
+      - search.php
+    - mysql-init-files
+      - init.sql
+    - index.html
+    - config.php
+
+
+

@@ -1,0 +1,91 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  </head>
+  <body>
+    <script type="text/javascript">
+      function searchMovies( e ){
+        e.preventDefault();
+        let yearQuery = '';
+        if ( $('#year').val() !== '' ){
+          yearQuery = '&year=' + $('#year').val();
+        }
+
+        $.ajax({
+          url : '/php/search.php?params=' + $('#params').val() + yearQuery + '&method=search',
+          type : 'GET',
+          success : function (result) {
+            buildMovieTable(JSON.parse(result)); 
+          },
+          error : function () {
+            console.log ('error');
+          }
+        });
+      }
+      function buildMovieTable( movies ){
+        $('#movieCards').empty();
+        for( const movie of movies ){ 
+           $('#movieCards').append('<div class="card" id="' + movie.id + '" style="width: 18rem;"><img src="https://image.tmdb.org/t/p/original' + movie.poster + '" class="card-img-top" alt="..."> <div class="card-body"><p class="card-text">Title: ' + movie.title + '</br>Release Date: ' + movie.release_date + '</br>Plot: ' + movie.plot + '</p> </div></div>'); 
+        }
+        for(let i =0; i < document.querySelectorAll('.card').length; i++){
+          document.querySelectorAll('.card')[i].addEventListener('click', (e) => {
+            getMovieDetails(event.currentTarget.id);
+          })
+        }
+
+      }
+      function getMovieDetails( movieId ){
+        $.ajax({
+          url : '/php/search.php?movie=' + movieId + '&method=details',
+          type : 'GET',
+          success : function (result) {
+            showMovieModal(JSON.parse(result));
+          },
+          error : function () {
+          }
+        });
+        
+      }
+      function showMovieModal(movie){
+        let genre = getMovieGenres(movie.genres); $('.modal').replaceWith( '<div class="modal" tabindex="-1" role="dialog"> <div class="modal-dialog" role="document"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title">' + movie.title + '</h5> <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div> <div class="modal-body"> <p>' + movie.overview + '<br>Genres: ' + genre + '</p> </div> <div class="modal-footer"> <button type="button" class="btn btn-secondary close" data-dismiss="modal">Close</button> </div> </div> </div> </div>'); 
+        $('.modal').show();
+        for(let i =0; i < document.querySelectorAll('.modal').length; i++){
+          document.querySelectorAll('.modal')[i].addEventListener('click', (e) => {
+            $('.modal').hide();
+          })
+        }
+      }
+
+      function getMovieGenres( genres ){
+        return genres.map(({ name }) => name).join(', ');
+      }
+
+    </script>
+    <div class='container' style='margin-top:10px'>
+      <div class='row col-lg-auto'>
+        <form onsubmit='searchMovies(event)'>
+          <div class="input-group mb-3" >
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="basic-addon">Search Parameters</span>
+            </div>
+            <input type="text" class="form-control" id="params" name="params" required>
+          </div>
+          <div class="input-group mb-3" >
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="basic-addon">Year</span>
+            </div>
+            <input type="text" class="form-control" id="year" name="year" number>
+          </div>
+          <input type="submit" class="btn btn-primary" value='Search'>
+        </form>
+      </div>
+      <div class='row col-lg-auto' id='movieCards'>
+      </div>
+    </div>
+    <div class='modal' id='movieModal'>
+    </div>
+  </body>
+</html>
+

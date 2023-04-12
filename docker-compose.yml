@@ -1,0 +1,25 @@
+version: '2'
+services:
+    php-apache-environment:
+        build:
+          context: ./
+        depends_on:
+            - db
+        volumes:
+            - ./:/var/www/html/
+        ports:
+            - 8080:80
+    db:
+        container_name: db
+        image: mysql
+        command: mysqld
+        volumes:
+          - ./mysql-init-files:/docker-entrypoint-initdb.d
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_DATABASE: bit_nine
+            MYSQL_USER: bit
+            MYSQL_PASSWORD: password
+        ports:
+            - "3306:3306"
